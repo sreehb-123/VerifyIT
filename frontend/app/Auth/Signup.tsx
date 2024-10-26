@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
 import { View, TextInput, Button, Alert, TouchableOpacity, Text } from 'react-native';
 import { studentSignup, adminSignup } from '@/api';
 import { Link, useLocalSearchParams } from 'expo-router';
 
 const SignUp: React.FC<{ onSignUpSuccess: () => void }> = ({  onSignUpSuccess }) => {
+=======
+import { View, TextInput, Button, Alert, Text, TouchableOpacity } from 'react-native';
+import { studentSignup, adminSignup } from '@/api';
+import { Link, useLocalSearchParams } from 'expo-router';
+
+const SignUp: React.FC<{ onSignUpSuccess: () => void }> = ({ onSignUpSuccess }) => {
+>>>>>>> 5830fb8db46c6daec19a0da529a16f6907327ba7
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rollNo, setRollNo] = useState('');
 
   const {role} = useLocalSearchParams();
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 5830fb8db46c6daec19a0da529a16f6907327ba7
   const handleSignUp = async () => {
     console.log(role);
     try {

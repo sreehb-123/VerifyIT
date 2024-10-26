@@ -73,10 +73,17 @@ const Login: React.FC = () => {
       <Button title="Login" onPress={handleLogin} />
       {role === 'student' && (
         <Link href="/Auth/Signup?role=student" asChild>
+<<<<<<< HEAD
           <TouchableOpacity>
             <Text>Don't have an account? Sign Up</Text>
           </TouchableOpacity>
         </Link>
+=======
+        <TouchableOpacity>
+          <Text >Don't have an account? Sign Up</Text>
+        </TouchableOpacity>
+      </Link>
+>>>>>>> 5830fb8db46c6daec19a0da529a16f6907327ba7
       )}
     </View>
   );
