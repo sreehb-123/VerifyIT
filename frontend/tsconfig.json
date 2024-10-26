@@ -1,0 +1,19 @@
+{
+    "extends": "expo/tsconfig.base",
+    "compilerOptions": {
+      "strict": true,
+      "baseUrl": ".",                // Allows for absolute imports
+      "paths": {
+        "@/*": ["*"]                 // Path aliasing
+      }
+    },
+    "include": [
+      "**/*.ts",
+      "**/*.tsx",                    // Include TypeScript files
+      ".expo/types/**/*.ts",         // Include Expo types
+      "expo-env.d.ts"               // Include environment types if needed
+    ],
+    "exclude": [
+      "node_modules"                 // Exclude node_modules folder
+    ]
+}  
