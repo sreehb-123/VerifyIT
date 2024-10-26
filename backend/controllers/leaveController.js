@@ -3,10 +3,12 @@ import LeaveRequest from '../models/LeaveRequest.js';
 // Create a new leave request
 export const createLeaveRequest = async (req, res) => {
   try {
-    const { studentId, leaveDate, entryDate, reason, rollNo } = req.body;
+    const { studentId, noOfStudents, phoneNo, leaveDate, entryDate, reason, rollNo } = req.body;
     // const { rollNo } = req.user;
     const newRequest = new LeaveRequest({
       studentId,
+      noOfStudents,
+      phoneNo,
       rollNo,
       leaveDate,
       entryDate,

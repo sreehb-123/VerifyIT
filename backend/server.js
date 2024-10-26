@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import cors from 'cors'; // Import cors package
+import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
 import leaveRoutes from './routes/leaveRoutes.js';
 
@@ -31,6 +31,6 @@ ConnectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/leaves', leaveRoutes);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server listening on ${PORT}`);
 });

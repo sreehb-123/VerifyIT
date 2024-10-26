@@ -1,7 +1,7 @@
 // app/Auth/Login.tsx
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { View, TextInput, Button, Alert, Text, TouchableOpacity } from 'react-native';
+import { useRouter, useLocalSearchParams, Link } from 'expo-router';
 import { studentLogin, wardenLogin, securityLogin } from '@/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -53,6 +53,13 @@ const Login: React.FC = () => {
         style={{ marginBottom: 10, borderWidth: 1, padding: 10 }}
       />
       <Button title="Login" onPress={handleLogin} />
+      {role === 'student' && (
+        <Link href="/Auth/Signup?role=student" asChild>
+        <TouchableOpacity>
+          <Text >Don't have an account? Sign Up</Text>
+        </TouchableOpacity>
+      </Link>
+      )}
     </View>
   );
 };
