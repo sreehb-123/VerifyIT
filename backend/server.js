@@ -31,6 +31,6 @@ ConnectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/leaves', leaveRoutes);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0' ,() => {
     console.log(`Server listening on ${PORT}`);
 });
