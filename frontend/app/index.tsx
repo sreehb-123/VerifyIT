@@ -16,41 +16,40 @@ const IndexScreen = () => {
           AsyncStorage.getItem('userRole')
         ]);
 
+        if (!userRole) {
+          // Has auth token but no role - send to role selection
+          router.replace('/Auth/RoleSelection');
+          return;
+        }
         if (!authToken) {
           // No auth token means user needs to login
           router.replace('/Auth/Login');
           return;
         }
 
-        if (!userRole) {
-          // Has auth token but no role - send to role selection
-          router.replace('/Auth/RoleSelection');
-          return;
-        }
+        
 
         // Both auth token and role exist - navigate to appropriate home screen
         const normalizedRole = userRole.toLowerCase();
         switch (normalizedRole) {
           case 'admin':
-            router.replace('/Home/SecurityHome');
+            router.replace('/Home/Warden');
             break;
           case 'user':
-            router.replace('/Home/StudentHome');
+           // router.replace('/Home/Student');
             break;
           case 'guest':
-            router.replace('/Home/WardenHome');
+            router.replace('/Home/Security');
             break;
           default:
-            // Invalid role - clear storage and restart auth flow
             await AsyncStorage.multiRemove(['authToken', 'userRole']);
-            
-            router.replace('/Auth/Login');
+            router.replace('/Auth/RoleSelection');
         }
       } catch (error) {
         console.error('Error checking auth status:', error);
         // On error, clear storage and restart auth flow
         await AsyncStorage.multiRemove(['authToken', 'userRole']);
-        router.replace('/Auth/Login');
+        router.replace('/Auth/RoleSelection');
       }
     };
 

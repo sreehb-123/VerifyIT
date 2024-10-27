@@ -46,7 +46,7 @@ const SignUp: React.FC<{ onSignUpSuccess: () => void }> = ({ onSignUpSuccess }) 
         />
       )}
       <Button title="Sign Up" onPress={handleSignUp} />
-      <Link href="/Auth/Login" asChild>
+      <Link href="/Auth/Login?role=student" asChild>
         <TouchableOpacity>
           <Text>Already have an account? Log In</Text>
         </TouchableOpacity>

@@ -47,7 +47,7 @@ const Login: React.FC = () => {
 
       await AsyncStorage.setItem('userToken', token);
 
-      if (role === 'student') router.replace('/Home/Security');
+      if (role === 'student') router.replace('/Home/Warden');
       else if (role === 'warden') router.replace('/Home/Security');
       else if (role === 'security') router.replace('/Home/Security');
     } catch (error) {

@@ -102,6 +102,7 @@ const ActiveRequestsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Text style={styles.header}>Pending Requests:</Text>
       <FlatList
         data={requests}
         renderItem={renderItem}
@@ -123,6 +124,7 @@ const ActiveRequestsScreen = () => {
                   <Text key={idx} style={styles.emailItem}>{email.trim()}</Text>
                 ))}
           </View>
+          <Text style={styles.label}>Reason:</Text>
             <Text style={styles.modalReason}>{selectedRequest?.reason}</Text>
             <Button title="Close" onPress={() => setModalVisible(false)} />
           </View>
@@ -134,12 +136,17 @@ const ActiveRequestsScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
+    marginTop: 10,
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
   listContainer: {
     padding: 16,
+  },
+  header:{
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize:18,
   },
   requestItem: {
     backgroundColor: 'white',
@@ -258,4 +265,3 @@ const styles = StyleSheet.create({
 });
 
 export default ActiveRequestsScreen;
-4
