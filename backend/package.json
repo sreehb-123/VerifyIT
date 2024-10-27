@@ -20,6 +20,7 @@
     "firebase": "^11.0.1",
     "firebase-admin": "^12.7.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.7.3"
+    "mongoose": "^8.7.3",
+    "nodemailer": "^6.9.15"
   }
 }

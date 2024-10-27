@@ -17,7 +17,6 @@ const UserSchema = new mongoose.Schema({
         required: function() {
             return this.role === 'student';
         },
-        unique: true,
     },
 });
 

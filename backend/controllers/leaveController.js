@@ -1,6 +1,9 @@
 import LeaveRequest from '../models/LeaveRequest.js';
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
-// Create a new leave request
+dotenv.config();
+
 export const createLeaveRequest = async (req, res) => {
   try {
     const { studentId, noOfStudents, phoneNo, leaveDate, entryDate, reason, rollNo } = req.body;
@@ -17,17 +20,43 @@ export const createLeaveRequest = async (req, res) => {
       records: 'inactive',
     });
 
+    console.log(process.env.WARDEN_EMAIL,process.env.WARDEN_EMAIL_PWD);
+
     const savedRequest = await newRequest.save();
+    
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.SECURITY_EMAIL,
+        pass: process.env.SECURITY_EMAIL_PWD
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.SECURITY_EMAIL,
+      to: 'harshab1926@gmail.com',
+      subject: 'New Leave Request Submitted',
+      text:  `A new leave request is submitted by student - ${studentId}. Details:
+        - Roll No: ${rollNo ? rollNo.join(', ') : 'Not provided'}
+        - Leave Date: ${leaveDate}
+        - Entry Date: ${entryDate}
+        - Contact No: ${phoneNo ? phoneNo.join(', ') : 'Not provided'}
+        - Reason: ${reason}
+        - No. of Students: ${noOfStudents}
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
     res.status(201).json(savedRequest);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Get all leave requests for a specific student
 export const getStudentLeaveRequests = async (req, res) => {
   try {
-    const studentId = req.user.uid; // Assuming student ID is stored in JWT
+    const studentId = req.user.uid;
     const requests = await LeaveRequest.find({ studentId });
     res.status(200).json(requests);
   } catch (error) {
@@ -35,7 +64,6 @@ export const getStudentLeaveRequests = async (req, res) => {
   }
 };
 
-// Get all leave requests (for warden)
 export const getAllLeaveRequests = async (req, res) => {
   // console.log(req.user.role);
   if(req.user.role === 'student'){
@@ -49,7 +77,6 @@ export const getAllLeaveRequests = async (req, res) => {
   }
 };
 
-// Update leave request status (for warden)
 export const updateLeaveRequestStatus = async (req, res) => {
   const { requestId, status } = req.body;
   if(req.user.role !== 'warden'){

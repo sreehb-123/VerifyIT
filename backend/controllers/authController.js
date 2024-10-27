@@ -75,6 +75,6 @@ export const createAdmin = async(req,res) => {
     await newUser.save();
     res.status(201).json({message: 'Admin created succesfully', uid: user.uid});
   } catch (error) {
-    res.status(500).json({message: eror.message});
+    res.status(500).json({message: error.message});
   }
 }
