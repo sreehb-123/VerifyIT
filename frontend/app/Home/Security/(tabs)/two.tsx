@@ -1,6 +1,7 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Button, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Button, Dimensions, FlatList } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import axios from 'axios';
 
 interface ScannedData {
   name: string;
@@ -15,6 +16,26 @@ const TabTwo = () => {
   const params = useLocalSearchParams<{ scannedData: string }>();
   const router = useRouter();
   const scannedData = params.scannedData ? JSON.parse(params.scannedData as string) as ScannedData : null;
+  const [activeRequests,setActiveRequests] = useState([]);
+
+  useEffect(() => {
+    const fetchActiveRequests = async () => {
+      try {
+        const token = localStorage.getItem('userToken');
+
+        const response = await axios.get('http://localhost:5000/api/leaves/requests/active',{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setActiveRequests(response.data);
+
+      } catch (error) {
+        console.error('Failed to fetch active requests');
+      }
+    };
+    fetchActiveRequests();
+  }, []);
 
   const columnWidths = {
     name: 150,
@@ -84,6 +105,19 @@ const TabTwo = () => {
       <View style={styles.buttonContainer}>
         <Button title="Go Back" onPress={() => router.back()} />
       </View>
+      <FlatList
+        data={activeRequests}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <View style={{ padding: 10, marginVertical: 5, backgroundColor: '#eee' }}>
+            {/* <Text>Student ID: {item.studentId}</Text> */}
+            <Text>Roll No(s): {item.rollNo.join(', ')}</Text>
+            <Text>Leave Date: {new Date(item.leaveDate).toLocaleDateString()}</Text>
+            <Text>Entry Date: {new Date(item.entryDate).toLocaleDateString()}</Text>
+            <Text>No. of Students: {item.noOfStudents}</Text>
+          </View>
+        )}
+      />
     </View>
   );
 };

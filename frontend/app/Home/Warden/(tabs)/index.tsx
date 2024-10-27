@@ -1,27 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FlatList, View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Modal, Button } from 'react-native';
+import axios from 'axios';
 
 const ActiveRequestsScreen = () => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<Request | null>(null);
+  const [pendingRequests,setPendingRequests] = useState([]);
 
-  const requests: Request[] = [
-    { 
-      id: '1', 
-      email: 'user21@example.com,user1@example.com,user1@example.com,user1@example.com,user1@example.com,user1@example.com,user1@example.com,user1@example.com,user1@example.com,user1@example.com,', 
-      reason: 'Medical Appointment details hvj mjbyuf kjgyu jbjgyuy jhuf buyfiydi jyguodi6s uiguf', 
-      outTime: '12/12/1002 1:00 PM', 
-      inTime: '13/17/2009 3:00 PM' 
-    },
-    { 
-      id: '2', 
-      email: 'user2@example.com', 
-      reason: 'Family Emergency details...', 
-      outTime: '12/12/1002 1:00 PM', 
-      inTime: '13/17/2009 3:00 PM'
-    },
-  ];
+  useEffect(() => {
+    const fetchPendingRequests = async () => {
+      try {
+        const token = localStorage.getItem('userToken');
+
+        const response = await axios.get('http://localhost:5000/api/leaves/requests/pending',{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setPendingRequests(response.data);
+
+      } catch (error) {
+        console.error('Failed to fetch active requests');
+      }
+    };
+    fetchPendingRequests();
+  }, []);
+
+
+  // const requests: Request[] = [
+  //   { 
+  //     id: '1', 
+  //     email: 'user21@example.com,user1@example.com,user1@example.com,user1@example.com,user1@example.com,user1@example.com,user1@example.com,user1@example.com,user1@example.com,user1@example.com,', 
+  //     reason: 'Medical Appointment details hvj mjbyuf kjgyu jbjgyuy jhuf buyfiydi jyguodi6s uiguf', 
+  //     outTime: '12/12/1002 1:00 PM', 
+  //     inTime: '13/17/2009 3:00 PM' 
+  //   },
+  //   { 
+  //     id: '2', 
+  //     email: 'user2@example.com', 
+  //     reason: 'Family Emergency details...', 
+  //     outTime: '12/12/1002 1:00 PM', 
+  //     inTime: '13/17/2009 3:00 PM'
+  //   },
+  // ];
   
   interface Request {
     id: string;
@@ -103,12 +125,12 @@ const ActiveRequestsScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>Pending Requests:</Text>
-      <FlatList
+      {/* <FlatList
         data={requests}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
-      />
+      /> */}
       
       <Modal
         transparent={true}
@@ -130,6 +152,22 @@ const ActiveRequestsScreen = () => {
           </View>
         </View>
       </Modal>
+      <FlatList
+        data={pendingRequests}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <View style={{ padding: 10, marginVertical: 5, backgroundColor: '#eee' }}>
+            {/* <Text>Student ID: {item.studentId}</Text> */}
+            <Text>Roll No(s): {item.rollNo.join(', ')}</Text>
+            <Text>Phone No(s): {item.phoneNo.join(', ')}</Text>
+            <Text>Leave Date: {new Date(item.leaveDate).toLocaleDateString()}</Text>
+            <Text>Entry Date: {new Date(item.entryDate).toLocaleDateString()}</Text>
+            <Text>Reason: {item.reason}</Text>
+            <Text>Status: {item.status}</Text>
+            <Text>No. of Students: {item.noOfStudents}</Text>
+          </View>
+        )}
+      />
     </SafeAreaView>
   );
 };

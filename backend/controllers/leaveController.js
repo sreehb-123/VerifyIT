@@ -111,3 +111,19 @@ export const getActiveLeaveRequests = async (req,res) => {
     res.status(500).json({message: error.message});
   }
 };
+
+export const getPendingRequests = async (req,res) => {
+  if(req.user.role !== 'warden'){
+    return res.status(403).json({message: 'Access denied. Only for warden.'});
+  }
+
+  try {
+    const pendingRequests = await LeaveRequest.find({ status: 'pending' });
+    if(pendingRequests.length === 0){
+      return res.status(404).json({message: 'No pending requests found'});
+    }
+    return res.status(200).json(pendingRequests);
+  } catch (error) {
+    res.status(500).json({message: error.message});
+  }
+}
