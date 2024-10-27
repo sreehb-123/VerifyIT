@@ -12,7 +12,7 @@ const IndexScreen = () => {
       try {
         // Check both auth token and role
         const [authToken, userRole] = await Promise.all([
-          AsyncStorage.getItem('authToken'),
+          AsyncStorage.getItem('userToken'),
           AsyncStorage.getItem('userRole')
         ]);
 
@@ -32,23 +32,23 @@ const IndexScreen = () => {
         // Both auth token and role exist - navigate to appropriate home screen
         const normalizedRole = userRole.toLowerCase();
         switch (normalizedRole) {
-          case 'admin':
+          case 'warden':
             router.replace('/Home/Warden');
             break;
-          case 'user':
-           // router.replace('/Home/Student');
+          case 'student':
+            router.replace('/Home/Student');
             break;
-          case 'guest':
+          case 'security':
             router.replace('/Home/Security');
             break;
           default:
-            await AsyncStorage.multiRemove(['authToken', 'userRole']);
+            await AsyncStorage.multiRemove(['userToken', 'userRole']);
             router.replace('/Auth/RoleSelection');
         }
       } catch (error) {
         console.error('Error checking auth status:', error);
         // On error, clear storage and restart auth flow
-        await AsyncStorage.multiRemove(['authToken', 'userRole']);
+        await AsyncStorage.multiRemove(['userToken', 'userRole']);
         router.replace('/Auth/RoleSelection');
       }
     };
