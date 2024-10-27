@@ -1,88 +1,119 @@
-import React, { useState,useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Button, Dimensions, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, FlatList, Alert, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-interface ScannedData {
-  name: string;
-  email: string;
-  contactNumber: string;
-  inTime: string;
-  outTime: string;
-  [key: string]: any;
+const API_BASE_URL = 'http://localhost:5000'; // Replace X with your actual local IP
+
+
+
+interface LeaveRequest {
+  _id: string;
+  rollNo: string[];
+  leaveDate: string;
+  entryDate: string;
+  noOfStudents: number;
+  status: string;
+  reason: string;
 }
 
 const TabTwo = () => {
   const params = useLocalSearchParams<{ scannedData: string }>();
   const router = useRouter();
-  const scannedData = params.scannedData ? JSON.parse(params.scannedData as string) as ScannedData : null;
-  const [leaveRequests,setLeaveRequests] = useState([]);
+  //const scannedData = params.scannedData ? JSON.parse(params.scannedData as string) as ScannedData : null;
+  
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchAllRequests = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const token = await AsyncStorage.getItem('userToken');
+      
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+
+      const response = await axios.get(`${API_BASE_URL}/api/leaves/requests/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.data) {
+        setLeaveRequests(response.data);
+      } else {
+        throw new Error('No data received from server');
+      }
+    } catch (error) {
+      let errorMessage = 'Failed to fetch requests';
+      
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          errorMessage = `Server error: ${error.response.status} - ${error.response.data?.message || error.message}`;
+        } else if (error.request) {
+          errorMessage = 'No response from server. Please check your internet connection.';
+        } else {
+          errorMessage = error.message;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      setError(errorMessage);
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAllRequests = async () => {
-      try {
-        const token = localStorage.getItem('userToken');
-
-        const response = await axios.get('http://localhost:5000/api/leaves/requests/all',{
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setLeaveRequests(response.data);
-
-      } catch (error) {
-        console.error('Failed to fetch active requests');
-      }
-    };
     fetchAllRequests();
   }, []);
 
-  const columnWidths = {
-    name: 150,
-    email: 200,
-    contactNumber: 120,
-    inTime: 100,
-    outTime: 100,
-  };
+ 
 
-  const totalWidth = Object.values(columnWidths).reduce((sum, width) => sum + width, 0);
 
-  const TableHeader = () => (
-    <View style={[styles.row, styles.headerRow]}>
-      <View style={[styles.cell, { width: columnWidths.name }]}>
-        <Text style={styles.headerText}>Name</Text>
-      </View>
-      <View style={[styles.cell, { width: columnWidths.email }]}>
-        <Text style={styles.headerText}>Email</Text>
-      </View>
-      <View style={[styles.cell, { width: columnWidths.contactNumber }]}>
-        <Text style={styles.headerText}>Contact</Text>
-      </View>
-      <View style={[styles.cell, { width: columnWidths.inTime }]}>
-        <Text style={styles.headerText}>In Time</Text>
-      </View>
-      <View style={[styles.cell, { width: columnWidths.outTime }]}>
-        <Text style={styles.headerText}>Out Time</Text>
-      </View>
-    </View>
-  );
+  const LeaveRequestCard = ({ item }: { item: LeaveRequest }) => (
+    <View style={styles.card}>
+      
+      <View style={styles.cardContent}>
+        <View style={styles.cardRow}>
+          <Text style={styles.cardLabel}>Roll Number(s):</Text>
+          <Text style={styles.cardValue}>{item.rollNo.join(', ')}</Text>
+          <View style={[styles.statusBadge, { backgroundColor: item.status === 'approved' ? '#4CAF50' : '#FFA000' }]}>
+          <Text style={styles.statusText}>{item.status}</Text>
+        </View>
+        </View>
+        
+        <View style={styles.cardRow}>
+          <Text style={styles.cardLabel}>Leave Date:</Text>
+          <Text style={styles.cardValue}>
+            {new Date(item.leaveDate).toLocaleDateString()}
+          </Text>
+        </View>
+        
+        <View style={styles.cardRow}>
+          <Text style={styles.cardLabel}>Entry Date:</Text>
+          <Text style={styles.cardValue}>
+            {new Date(item.entryDate).toLocaleDateString()}
+          </Text>
+        </View>
+        
+        <View style={styles.cardRow}>
+          <Text style={styles.cardLabel}>Students:</Text>
+          <Text style={styles.cardValue}>{item.noOfStudents}</Text>
+        </View>
 
-  const TableRow = ({ data }: { data: ScannedData }) => (
-    <View style={styles.row}>
-      <View style={[styles.cell, { width: columnWidths.name }]}>
-        <Text style={styles.cellText}>{data.name || '-'}</Text>
-      </View>
-      <View style={[styles.cell, { width: columnWidths.email }]}>
-        <Text style={styles.cellText}>{data.email || '-'}</Text>
-      </View>
-      <View style={[styles.cell, { width: columnWidths.contactNumber }]}>
-        <Text style={styles.cellText}>{data.contactNumber || '-'}</Text>
-      </View>
-      <View style={[styles.cell, { width: columnWidths.inTime }]}>
-        <Text style={styles.cellText}>{data.inTime || '-'}</Text>
-      </View>
-      <View style={[styles.cell, { width: columnWidths.outTime }]}>
-        <Text style={styles.cellText}>{data.outTime || '-'}</Text>
+        <View style={styles.cardRow}>
+          <Text style={styles.cardLabel}>Reason:</Text>
+          <Text style={styles.cardValue}>{item.reason}</Text>
+        </View>
       </View>
     </View>
   );
@@ -90,6 +121,7 @@ const TabTwo = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Today's Activity</Text>
+      {/*
       {scannedData ? (
         <View style={styles.tableContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={true}>
@@ -100,24 +132,47 @@ const TabTwo = () => {
           </ScrollView>
         </View>
       ) : (
-        <Text style={styles.noDataText}>No data to Show</Text>
+        <Text style={styles.noDataText}>No scanned data available</Text>
       )}
-      <View style={styles.buttonContainer}>
-        <Button title="Go Back" onPress={() => router.back()} />
-      </View>
-      <FlatList
-        data={leaveRequests}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => (
-          <View style={{ padding: 10, marginVertical: 5, backgroundColor: '#eee' }}>
-            {/* <Text>Student ID: {item.studentId}</Text> */}
-            <Text>Roll No(s): {item.rollNo.join(', ')}</Text>
-            <Text>Leave Date: {new Date(item.leaveDate).toLocaleDateString()}</Text>
-            <Text>Entry Date: {new Date(item.entryDate).toLocaleDateString()}</Text>
-            <Text>No. of Students: {item.noOfStudents}</Text>
-          </View>
-        )}
-      />
+
+      <View style={styles.divider} />
+      
+      <Text style={styles.subtitle}>Leave Requests</Text>*/}
+
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity 
+            style={styles.retryButton}
+            onPress={fetchAllRequests}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : leaveRequests.length === 0 ? (
+        <Text style={styles.noDataText}>No leave requests found</Text>
+      ) : (
+        <FlatList
+          data={leaveRequests}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => <LeaveRequestCard item={item} />}
+          contentContainerStyle={styles.listContainer}
+          refreshing={isLoading}
+          onRefresh={fetchAllRequests}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+{/*
+      <TouchableOpacity 
+        style={styles.backButton}
+        onPress={() => router.back()}
+      >
+        <Text style={styles.backButtonText}>Go Back</Text>
+      </TouchableOpacity>*/}
     </View>
   );
 };
@@ -126,20 +181,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 16,
     color: '#333',
   },
+  subtitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginVertical: 16,
+    color: '#333',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#e0e0e0',
+    marginVertical: 16,
+  },
   tableContainer: {
-    flex: 1,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#e0e0e0',
     overflow: 'hidden',
+    backgroundColor: '#fff',
+    marginBottom: 16,
   },
   table: {
     flexDirection: 'column',
@@ -168,15 +235,104 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
+  listContainer: {
+    paddingBottom: 16,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    marginBottom: 12,
+    padding: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  cardContent: {
+    gap: 8,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  cardLabel: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+    minWidth: 100,
+  },
+  cardValue: {
+    fontSize: 14,
+    color: '#333',
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#f44336',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: '#2196F3',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 4,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
   noDataText: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
     marginTop: 20,
   },
-  buttonContainer: {
-    marginTop: 20,
-    paddingVertical: 10,
+  backButton: {
+    backgroundColor: '#2196F3',
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  backButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

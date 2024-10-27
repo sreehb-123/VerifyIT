@@ -6,8 +6,8 @@ import { Pressable,Text } from 'react-native';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '../../components/useColorScheme';
 import { useClientOnlyValue } from '../../components/useClientOnlyValue';
-
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
@@ -17,9 +17,14 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
+  const router = useRouter();
   const headerBackgroundColor = colorScheme === 'dark' ? 'black' : 'white';
   const headerIconColor = colorScheme === 'dark' ? 'white' : 'black';
+  function handleLogOut(){
+    AsyncStorage.multiRemove(['userToken', 'userRole', 'studentId']);
+    router.replace('/Auth/RoleSelection');
+  }
+
   return (
     <Tabs
       screenOptions={{
@@ -32,7 +37,7 @@ export default function TabLayout() {
   name="index" 
   options={{ 
     title: 'Home',
-    tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color}/>,
+    tabBarIcon: ({ color }) =><TabBarIcon name="home" color={color}/>,
     headerRight: () => ( 
       <Link href="/Home/Student/form" asChild>
         <Pressable style={{ flexDirection: 'row', alignItems: 'center', marginRight: 15 }}>
@@ -54,6 +59,18 @@ export default function TabLayout() {
         options={{
           title: 'History',
           tabBarIcon: ({ color }) => <TabBarIcon name="history" color={color} />,
+          headerRight: () => (
+            <Pressable onPress={() => handleLogOut()}>
+              {({ pressed }) => (
+                <FontAwesome
+                  name="sign-out"
+                  size={25}
+                  color={Colors[colorScheme ?? 'light'].text}
+                  style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                />
+              )}
+            </Pressable>
+          ),
         }}
       />
     </Tabs>

@@ -34,16 +34,16 @@ export default function Layout() {
         }} 
       />
       <Stack.Screen 
-        name="Home/StudentHome" 
-        options={{ title: 'Student Home' }} 
+        name="Home/Student" 
+        options={{ title: 'Student' }} 
       />
       <Stack.Screen 
-        name="Home/WardenHome" 
-        options={{ title: 'Warden Home' }} 
+        name="Home/Warden" 
+        options={{ title: 'Warden' }} 
       />
       <Stack.Screen 
-        name="Home/SecurityHome" 
-        options={{ title: 'Security Home' }} 
+        name="Home/Security" 
+        options={{ title: 'Security' }} 
       />
     </Stack>
   );

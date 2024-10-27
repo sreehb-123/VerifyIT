@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { submitRequest } from '@/api';
+import { useRouter } from 'expo-router';
 import {
   View,
   Text,
@@ -70,6 +73,7 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
     inputBackground: colorScheme === 'light' ? '#404040' : '#ffffff',
   };
 
+  
   const formatDate = (date: Date): string => {
     return date.toLocaleDateString();
   };
@@ -86,16 +90,17 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
 
   const handlePickerChange = (event: any, selectedValue?: Date) => {
     setShowPicker(Platform.OS === 'ios');
-    
+  
     if (event.type === 'dismissed' || !selectedValue) {
       return;
     }
-
+  
     setFormData(prev => ({
       ...prev,
       [currentPickerField]: selectedValue
     }));
   };
+  
 
   // const validateEmail = (email: string): boolean => {
   //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -103,12 +108,12 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
   // };
 
   const validatePhone = (phone: string): boolean => {
-    const phoneRegex = /^\+?[\d\s-]{10,}$/;
+    const phoneRegex = /^\+?[\d\s-]{10,10}$/;
     return phoneRegex.test(phone);
   };
 
   const validateRoll = (roll: string): boolean => {
-    const rollRegex = /^[A-Za-z0-9\s-]{9,}$/;
+    const rollRegex = /^[A-Za-z0-9\s-]{9,9}$/;
     return rollRegex.test(roll);
   };
 
@@ -244,9 +249,21 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
       return;
     }
 
+    
+    
+    const combinedEntry = new Date(formData.entryDate);
+  combinedEntry.setHours(formData.entryTime.getHours(), formData.entryTime.getMinutes());
+
+  const combinedExit = new Date(formData.exitDate);
+  combinedExit.setHours(formData.exitTime.getHours(), formData.exitTime.getMinutes());
+
+  // Now combinedEntry and combinedExit are based on user input
+ // submitRequest(formData.rolls, formData.contacts, formData.rolls.length, formData.reason, combinedEntry, combinedExit);
+
+    submitRequest(formData.rolls,formData.contacts,formData.rolls.length,formData.reason,combinedEntry,combinedExit);
     function onSubmit(){
-        Alert.alert('Success', 'Form submitted successfully!');
-    }
+      Alert.alert('Success', 'Form submitted successfully!');
+  }
     
     // Reset form
     setFormData({
@@ -276,180 +293,51 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
   };
 
   const renderDateTimePicker = () => {
-    const [formData, setFormData] = useState({
-      exitDate: new Date(),
-      exitTime: new Date(),
-      entryDate: new Date(),
-      entryTime: new Date(),
-    });
-  
-    const [showPicker, setShowPicker] = useState(false);
-    const [pickerMode, setPickerMode] = useState<'date' | 'time'>('date');
-    const [currentPickerField, setCurrentPickerField] = useState<'exitDate' | 'exitTime' | 'entryDate' | 'entryTime'>('exitDate');
-  
-    const WebDateTimePicker = ({ 
-      mode, 
-      value, 
-      onChange, 
-      style 
-    }: { 
-      mode: 'date' | 'time';
-      value: Date;
-      onChange: (date: Date) => void;
-      style: any;
-    }) => {
-      // Format the value for the input field
-      const inputValue = mode === 'date' 
-        ? value.toISOString().split('T')[0]
-        : value.toTimeString().slice(0, 5);
-  
-      return (
-        <input
-          type={mode}
-          value={inputValue}
-          onChange={(e) => {
-            const newValue = e.target.value;
-            const newDate = new Date(value);
-            
-            if (mode === 'date') {
-              const [year, month, day] = newValue.split('-').map(Number);
-              newDate.setFullYear(year, month - 1, day);
-            } else {
-              const [hours, minutes] = newValue.split(':').map(Number);
-              newDate.setHours(hours, minutes);
-            }
-            
-            onChange(newDate);
-          }}
-          style={{
-            ...style,
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            padding: '12px',
-            fontSize: '16px',
-            width: '46%',
-            marginBottom: '16px',
-          }}
-        />
-      );
-    };
-  
-    const NativeDateTimePicker = () => {
-      if (!showPicker) return null;
-  
-      return (
-        <DateTimePicker
-          value={formData[currentPickerField]}
-          mode={pickerMode}
-          is24Hour={true}
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={(event, selectedDate) => {
-            setShowPicker(Platform.OS === 'ios');
-            if (event.type !== 'dismissed' && selectedDate) {
-              setFormData(prev => ({
-                ...prev,
-                [currentPickerField]: selectedDate
-              }));
-            }
-          }}
-        />
-      );
-    };
-  
-    const handlePress = (mode: 'date' | 'time', field: 'exitDate' | 'exitTime' | 'entryDate' | 'entryTime') => {
-      if (Platform.OS === 'web') {
-        // Web platform doesn't need to show/hide picker
-        return;
-      }
-      setPickerMode(mode);
-      setCurrentPickerField(field);
-      setShowPicker(true);
-    };
-  
-    const formatDate = (date: Date): string => {
-      return date.toLocaleDateString();
-    };
-  
-    const formatTime = (date: Date): string => {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    };
-  
     return (
-        <View style={styles.row}>
-          <View style={styles.column}>
-            <Text style={styles.label}>Exit</Text>
-            {Platform.OS === 'web' ? (
-              <>
-                <WebDateTimePicker
-                  mode="date"
-                  value={formData.exitDate}
-                  onChange={(date) => setFormData(prev => ({ ...prev, exitDate: date }))}
-                  style={styles.dateTimeButton}
-                />
-                <WebDateTimePicker
-                  mode="time"
-                  value={formData.exitTime}
-                  onChange={(date) => setFormData(prev => ({ ...prev, exitTime: date }))}
-                  style={styles.dateTimeButton}
-                />
-              </>
-            ) : (
-              <>
-                <TouchableOpacity
-                  style={styles.dateTimeButton}
-                  onPress={() => handlePress('date', 'exitDate')}
-                >
-                  <Text style={styles.dateTimeText}>{formatDate(formData.exitDate)}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.dateTimeButton}
-                  onPress={() => handlePress('time', 'exitTime')}
-                >
-                  <Text style={styles.dateTimeText}>{formatTime(formData.exitTime)}</Text>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
-  
-          <View style={styles.column}>
-            <Text style={styles.label}>Entry</Text>
-            {Platform.OS === 'web' ? (
-              <>
-                <WebDateTimePicker
-                  mode="date"
-                  value={formData.entryDate}
-                  onChange={(date) => setFormData(prev => ({ ...prev, entryDate: date }))}
-                  style={styles.dateTimeButton}
-                />
-                <WebDateTimePicker
-                  mode="time"
-                  value={formData.entryTime}
-                  onChange={(date) => setFormData(prev => ({ ...prev, entryTime: date }))}
-                  style={styles.dateTimeButton}
-                />
-              </>
-            ) : (
-              <>
-                <TouchableOpacity
-                  style={styles.dateTimeButton}
-                  onPress={() => handlePress('date', 'entryDate')}
-                >
-                  <Text style={styles.dateTimeText}>{formatDate(formData.entryDate)}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.dateTimeButton}
-                  onPress={() => handlePress('time', 'entryTime')}
-                >
-                  <Text style={styles.dateTimeText}>{formatTime(formData.entryTime)}</Text>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
-  
-        {Platform.OS !== 'web' && <NativeDateTimePicker />}
+      <View style={styles.row}>
+        <View style={styles.column}>
+          <Text style={styles.label}>Exit</Text>
+          <TouchableOpacity
+            style={styles.dateTimeButton}
+            onPress={() => openPicker('date', 'exitDate')}
+          >
+            <Text style={styles.dateTimeText}>{formatDate(formData.exitDate)}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.dateTimeButton}
+            onPress={() => openPicker('time', 'exitTime')}
+          >
+            <Text style={styles.dateTimeText}>{formatTime(formData.exitTime)}</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.column}>
+          <Text style={styles.label}>Entry</Text>
+          <TouchableOpacity
+            style={styles.dateTimeButton}
+            onPress={() => openPicker('date', 'entryDate')}
+          >
+            <Text style={styles.dateTimeText}>{formatDate(formData.entryDate)}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.dateTimeButton}
+            onPress={() => openPicker('time', 'entryTime')}
+          >
+            <Text style={styles.dateTimeText}>{formatTime(formData.entryTime)}</Text>
+          </TouchableOpacity>
+        </View>
+        {showPicker && (
+          <DateTimePicker
+            value={formData[currentPickerField]}
+            mode={pickerMode}
+            is24Hour={true}
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handlePickerChange}
+          />
+        )}
       </View>
     );
   };
+  
   
 
   const styles = StyleSheet.create({
@@ -484,9 +372,10 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
     },
     title: {
       color: theme.text,
-      fontSize: 24,
+      fontSize: 28,
       fontWeight: Platform.select({ ios: '600', android: 'bold', web: '600' }),
       marginBottom: 10,
+      alignItems:'center',
     },
     label: {
       color: theme.text,

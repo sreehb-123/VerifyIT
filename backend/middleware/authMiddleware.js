@@ -10,16 +10,18 @@ export const authenticateToken = async (req, res, next) => {
   }
 
   try {
-    const decodedUser = await admin.auth().verifyIdToken(token).catch(async (error)=> {
-      const customTokenDecoded = await admin.auth().verifyIdToken(token,{ checkRevoked: true}).catch(()=>null);
-      if(customTokenDecoded) return customTokenDecoded;
+    // Verify the token
+    const decodedUser = await admin.auth().verifyIdToken(token).catch(async (error) => {
+      // Check for revoked tokens
+      const customTokenDecoded = await admin.auth().verifyIdToken(token, { checkRevoked: true }).catch(() => null);
+      if (customTokenDecoded) return customTokenDecoded;
 
       throw new Error('Invalid Token');
-    })
+    });
 
     req.user = decodedUser; // Attach decoded user info to the request object
 
-
+    // Check if the user exists in the database
     const user = await User.findOne({ firebaseUID: decodedUser.uid });
     
     if (!user) {
@@ -29,7 +31,7 @@ export const authenticateToken = async (req, res, next) => {
     req.user.role = user.role; // Attach user role to request
     next();
   } catch (error) {
-    console.error('Token verification error:', error);
+    console.error('Token verification error:', error.message); // Log the error message
     return res.status(403).json({ message: 'Invalid or expired token.' });
   }
 };

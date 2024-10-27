@@ -20,7 +20,7 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
   function handleLogOut(){
-    AsyncStorage.multiRemove(['authToken', 'userRole']);
+    AsyncStorage.multiRemove(['userToken', 'userRole']);
     router.replace('/Auth/RoleSelection');
   }
 
