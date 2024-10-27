@@ -12,19 +12,19 @@ const IndexScreen = () => {
       try {
         // Check both auth token and role
         const [authToken, userRole] = await Promise.all([
-          AsyncStorage.getItem('authToken'),
+          AsyncStorage.getItem('userToken'),
           AsyncStorage.getItem('userRole')
         ]);
 
-        if (!userRole) {
+        if (!userRole || !authToken) {
           // Has auth token but no role - send to role selection
           router.replace('/Auth/RoleSelection');
           return;
-        }
-        if (!authToken) {
-          // No auth token means user needs to login
-          router.replace('/Auth/Login');
-          return;
+        // }
+        // if (!authToken) {
+        //   // No auth token means user needs to login
+        //   router.replace('/Auth/Login');
+        //   return;
         }
 
         
