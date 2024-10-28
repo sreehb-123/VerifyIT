@@ -13,12 +13,12 @@ dotenv.config(); // Load environment variables
 // Firebase authentication for students
 export const studentLogin = async (req, res) => {
   const { email, password } = req.body;
-  console.log(email,password);
+  //console.log(email,password);
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     const idToken = await user.getIdToken();
-    console.log('succesful login student');
+    //console.log('succesful login student');
     // Return user info or generate a token as needed
     res.status(200).json({ uid: user.uid, email: user.email, idToken, rollNo: user.rollNo });
   } catch (error) {

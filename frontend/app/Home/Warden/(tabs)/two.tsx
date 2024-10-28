@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000'; // Replace X with your actual local IP
+const API_BASE_URL = 'https://1e5f-103-120-31-122.ngrok-free.app'; // Replace X with your actual local IP
 
 
 
@@ -86,7 +86,7 @@ const TabTwo = () => {
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Roll Number(s):</Text>
           <Text style={styles.cardValue}>{item.rollNo.join(', ')}</Text>
-          <View style={[styles.statusBadge, { backgroundColor: item.status === 'approved' ? '#4CAF50' : '#FFA000' }]}>
+          <View style={[styles.statusBadge, { backgroundColor: item.status === 'approved' ? '#4CAF50' : item.status === 'pending' ? '#FFA000' : '#F44336'}]}>
           <Text style={styles.statusText}>{item.status}</Text>
         </View>
         </View>

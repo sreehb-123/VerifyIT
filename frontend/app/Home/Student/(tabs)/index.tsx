@@ -12,7 +12,7 @@ export default function TabOneScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const API_BASE_URL = 'http://localhost:5000';
+  const API_BASE_URL = 'https://1e5f-103-120-31-122.ngrok-free.app';
 
   const fetchQRCode = async () => {
     try {
@@ -94,7 +94,7 @@ export default function TabOneScreen() {
     const qrData = JSON.stringify({
       //requestId: currentRequest.,
       noOfStudents: currentRequest.noOfStudents,
-      rollNo:currentRequest.rollNo,
+      rollNo: currentRequest.rollNo,
       leaveDate: currentRequest.leaveDate,
       entryDate: currentRequest.entryDate,
       studentId: currentRequest.studentId,
@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
+    backgroundColor:'white',
   },
   dateText: {
     marginTop: 10,
@@ -200,6 +201,7 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 15,
     paddingHorizontal: 10,
+    backgroundColor:'white',
   },
   navButton: {
     padding: 10,
@@ -241,8 +243,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
   },
   qrContainer: {
-    width: 280,
-    height: 280,
+    width: 320,
+    height: 320,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.8)',

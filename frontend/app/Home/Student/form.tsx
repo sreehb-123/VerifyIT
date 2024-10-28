@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { submitRequest } from '@/api';
-import { useRouter } from 'expo-router';
+import { router, useRouter } from 'expo-router';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import {
   Alert,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface FormData {
   contacts: string[];
@@ -259,11 +260,11 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
 
   // Now combinedEntry and combinedExit are based on user input
  // submitRequest(formData.rolls, formData.contacts, formData.rolls.length, formData.reason, combinedEntry, combinedExit);
-
-    submitRequest(formData.rolls,formData.contacts,formData.rolls.length,formData.reason,combinedEntry,combinedExit);
-    function onSubmit(){
+    
+      submitRequest(formData.rolls,formData.contacts,formData.rolls.length,formData.reason,combinedEntry,combinedExit);
       Alert.alert('Success', 'Form submitted successfully!');
-  }
+      router.back();
+  
     
     // Reset form
     setFormData({

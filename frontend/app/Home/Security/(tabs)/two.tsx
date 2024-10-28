@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000'; // Replace X with your actual local IP
+const API_BASE_URL = 'https://1e5f-103-120-31-122.ngrok-free.app'; // Replace X with your actual local IP
 
 
 

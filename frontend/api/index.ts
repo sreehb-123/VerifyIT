@@ -1,7 +1,8 @@
 import axios from 'axios';
 import User from '../../backend/models/User';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = ' http://localhost:5000/api';
+const API_URL = 'https://1e5f-103-120-31-122.ngrok-free.app/api';
 
 export const studentSignup = async (email: string, password: string, rollNo: string) => {
     await axios.post(`${API_URL}/auth/create-student`, {email,password,rollNo});
@@ -33,11 +34,9 @@ export const securityLogin = async (email: string, password: string) => {
 };
 
 export const submitRequest = async(rollNo: string[], phoneNo: string[], noOfStudents: number, reason: string, entryDate: Date, leaveDate: Date) => {
-    const studentId = localStorage.getItem('studentId');
-    const token = localStorage.getItem('userToken');
-
-    console.log(studentId,token);
-
+    const studentId = await AsyncStorage.getItem('studentId');
+    const token = await AsyncStorage.getItem('userToken');
+    
     try {
         const response = await axios.post(`${API_URL}/leaves/requests`, {studentId,noOfStudents,phoneNo,rollNo,leaveDate,entryDate,reason}, {
             headers: {

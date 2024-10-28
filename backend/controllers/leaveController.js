@@ -7,7 +7,7 @@ dotenv.config();
 
 export const createLeaveRequest = async (req, res) => {
   try {
-    console.log(req.body)
+    
     const { studentId, noOfStudents, phoneNo, leaveDate, entryDate, reason, rollNo } = req.body;
     // const { rollNo } = req.user;
     const newRequest = new LeaveRequest({
@@ -22,11 +22,11 @@ export const createLeaveRequest = async (req, res) => {
       records: 'inactive',
     });
 
-    console.log(process.env.WARDEN_EMAIL,process.env.WARDEN_EMAIL_PWD);
+   // console.log(process.env.WARDEN_EMAIL,process.env.WARDEN_EMAIL_PWD);
 
     const savedRequest = await newRequest.save();
-    console.log("hello");
     
+    /*
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -51,7 +51,7 @@ export const createLeaveRequest = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-
+*/
     res.status(201).json(savedRequest);
   } catch (error) {
     console.error(error)
@@ -62,7 +62,7 @@ export const createLeaveRequest = async (req, res) => {
 export const getStudentLeaveRequests = async (req, res) => {
   try {
     const studentId = req.user.uid; // Getting studentId from authenticated user
-    console.log('Fetching requests for studentId:', studentId);
+    //console.log('Fetching requests for studentId:', studentId);
     
     if (!studentId) {
       return res.status(400).json({
@@ -73,7 +73,7 @@ export const getStudentLeaveRequests = async (req, res) => {
 
     // Correct MongoDB query syntax
     const requests = await LeaveRequest.find({ studentId: studentId });
-    console.log('Found requests:', requests);
+   // console.log('Found requests:', requests);
 
     return res.status(200).json({
       success: true,
@@ -106,8 +106,6 @@ export const getAllLeaveRequests = async (req, res) => {
 export const updateLeaveRequestStatus = async (req, res) => {
   const requestId = req.body.id;
   const status = req.body.status;
-  console.log(req.body);
-  console.log(requestId);
   if(req.user.role !== 'warden'){
     return res.status(403).json({message: 'Access denied. Only for warden'});
   }
