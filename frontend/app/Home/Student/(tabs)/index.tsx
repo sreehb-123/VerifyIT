@@ -89,15 +89,15 @@ export default function TabOneScreen() {
   const renderQRCode = () => {
     const currentRequest = approvedRequests[currentIndex];
     if (!currentRequest) return null;
-
+    console.log(currentRequest);
     // Create QR code data object
     const qrData = JSON.stringify({
       //requestId: currentRequest.,
+      noOfStudents: currentRequest.noOfStudents,
+      rollNo:currentRequest.rollNo,
+      leaveDate: currentRequest.leaveDate,
+      entryDate: currentRequest.entryDate,
       studentId: currentRequest.studentId,
-      startDate: currentRequest.startDate,
-      endDate: currentRequest.endDate,
-      status: currentRequest.status,
-      //timestamp: new Date().toISOString()
     });
 
     return (
@@ -109,7 +109,7 @@ export default function TabOneScreen() {
           color="black"
         />
         <Text style={styles.dateText}>
-          {new Date(currentRequest.startDate).toLocaleDateString()} - {new Date(currentRequest.endDate).toLocaleDateString()}
+          {new Date(currentRequest?.leaveDate).toLocaleDateString()} - {new Date(currentRequest?.entryDate).toLocaleDateString()}
         </Text>
       </View>
     );
