@@ -1,77 +1,142 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Button, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Button, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 interface ScannedData {
-  name: string;
-  email: string;
+  rollNo: string[];
+  noOfStudents: number;
+  entryDate: string;
   [key: string]: any;
 }
 
 const QRDataScreen = () => {
   const params = useLocalSearchParams<{ scannedData: string }>();
   const router = useRouter();
-  
-  // Parse the data and ensure it's always an array
+
   const scannedData = params.scannedData ? 
-    (Array.isArray(JSON.parse(params.scannedData)) ? 
-      JSON.parse(params.scannedData) : 
-      [JSON.parse(params.scannedData)]) as ScannedData[] : 
+    (Array.isArray(JSON.parse(params.scannedData)) ?
+      JSON.parse(params.scannedData) :
+      [JSON.parse(params.scannedData)]) as ScannedData[] :
     null;
 
-  const columnWidths = {
-    name: 150,
-    email: 200,
+  const isDateExpired = (dateStr: string): boolean => {
+    const entryDate = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return entryDate < today;
   };
 
-  const totalWidth = Object.values(columnWidths).reduce((sum, width) => sum + width, 0);
+  const formatDate = (dateStr: string): string => {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
 
-  const TableHeader = () => (
-    <View style={[styles.row, styles.headerRow]}>
-      <View style={[styles.cell, { width: columnWidths.name }]}>
-        <Text style={styles.headerText}>Name</Text>
-      </View>
-      <View style={[styles.cell, { width: columnWidths.email }]}>
-        <Text style={styles.headerText}>Email</Text>
-      </View>
-    </View>
-  );
+  const DataCard = ({ data }: { data: ScannedData }) => {
+    const isExpired = isDateExpired(data.entryDate);
+    
+    return (
+      <View style={[
+        styles.card,
+        isExpired ? styles.expiredCard : styles.validCard
+      ]}>
+        <View style={styles.cardHeader}>
+          <View style={styles.cardHeaderLeft}>
+            <Text style={styles.studentsCount}>
+              {data.noOfStudents}
+              <Text style={styles.studentsLabel}> Students</Text>
+            </Text>
+          </View>
+          <View style={[
+            styles.statusBadge,
+            isExpired ? styles.expiredBadge : styles.validBadge
+          ]}>
+            <Text style={styles.statusText}>
+              {isExpired ? 'EXPIRED' : 'VALID'}
+            </Text>
+          </View>
+        </View>
 
-  const TableRow = ({ data }: { data: ScannedData }) => (
-    <View style={styles.row}>
-      <View style={[styles.cell, { width: columnWidths.name }]}>
-        <Text style={styles.cellText}>{data.name || '-'}</Text>
+        <View style={styles.cardBody}>
+          <Text style={styles.label}>Roll Numbers:</Text>
+          <View style={styles.rollNumbersContainer}>
+            {data.rollNo.map((roll, index) => (
+              <View key={index} style={styles.rollNumberBadge}>
+                <Text style={styles.rollNumberText}>{roll}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.cardFooter}>
+          <Text style={styles.dateText}>
+            Entry Date: {formatDate(data.entryDate)}
+          </Text>
+        </View>
       </View>
-      <View style={[styles.cell, { width: columnWidths.email }]}>
-        <Text style={styles.cellText}>{data.email || '-'}</Text>
-      </View>
-    </View>
-  );
+    );
+  };
+
+  const handleSubmit = () => {
+    if (!scannedData) {
+      Alert.alert('Error', 'No data to submit');
+      return;
+    }
+
+    const hasExpiredData = scannedData.some(data => isDateExpired(data.entryDate));
+    if (hasExpiredData) {
+      Alert.alert(
+        'Warning',
+        'Some entries have expired dates. Do you still want to proceed?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel'
+          },
+          {
+            text: 'Proceed',
+            onPress: () => router.back()
+          }
+        ]
+      );
+    } else {
+      router.back();
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Scanned Data</Text>
-      <Text style={styles.entryCount}>
-        Number of Entries: <Text style={styles.NumberOfEntries}>{scannedData ? scannedData.length : 0}</Text>
-      </Text>
-      
-      {scannedData ? (
-        <View style={styles.tableContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={true}>
-            <View style={[styles.table, { width: totalWidth }]}>
-              <TableHeader />
-              {scannedData.map((data, index) => (
-                <TableRow key={index} data={data} />
-              ))}
-            </View>
-          </ScrollView>
+      <View style={styles.header}>
+        <Text style={styles.title}>Scanned Data</Text>
+        <View style={styles.countBadge}>
+          <Text style={styles.countText}>
+            {scannedData ? scannedData.length : 0} Entries
+          </Text>
         </View>
+      </View>
+
+      {scannedData ? (
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {scannedData.map((data, index) => (
+            <DataCard key={index} data={data} />
+          ))}
+        </ScrollView>
       ) : (
-        <Text style={styles.noDataText}>No data scanned.</Text>
+        <View style={styles.noDataContainer}>
+          <Text style={styles.noDataText}>No data scanned</Text>
+        </View>
       )}
-      
+
       <View style={styles.buttonContainer}>
-        <Button title="Submit Record" onPress={() => router.back()} />{/* Navigate too main menu and send the data to database if clicked */}
+        <Button 
+          title="Submit Record" 
+          onPress={handleSubmit}
+        />
       </View>
     </View>
   );
@@ -80,66 +145,141 @@ const QRDataScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f7fa',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 16,
     backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 8,
     color: '#333',
   },
-  entryCount: {
+  countBadge: {
+    backgroundColor: '#e3e8ff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  countText: {
+    color: '#4863ff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  validCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#28a745',
+  },
+  expiredCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#dc3545',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  cardHeaderLeft: {
+    flex: 1,
+  },
+  studentsCount: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  studentsLabel: {
     fontSize: 16,
     color: '#666',
-    marginBottom: 20,
+    fontWeight: 'normal',
   },
-  tableContainer: {
-    flex: 1,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    overflow: 'hidden',
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
   },
-  table: {
-    flexDirection: 'column',
+  validBadge: {
+    backgroundColor: '#e8f5e9',
   },
-  row: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+  expiredBadge: {
+    backgroundColor: '#ffebee',
   },
-  headerRow: {
-    backgroundColor: '#f5f5f5',
-    borderBottomWidth: 2,
-  },
-  cell: {
-    padding: 12,
-    justifyContent: 'center',
-    borderRightWidth: 1,
-    borderRightColor: '#e0e0e0',
-  },
-  headerText: {
+  statusText: {
+    fontSize: 12,
     fontWeight: 'bold',
-    fontSize: 16,
-    color: '#333',
   },
-  cellText: {
+  cardBody: {
+    padding: 16,
+  },
+  label: {
     fontSize: 14,
     color: '#666',
+    marginBottom: 8,
+  },
+  rollNumbersContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 4,
+  },
+  rollNumberBadge: {
+    backgroundColor: '#f0f4ff',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    margin: 4,
+  },
+  rollNumberText: {
+    color: '#4863ff',
+    fontWeight: '500',
+  },
+  cardFooter: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+  },
+  dateText: {
+    color: '#666',
+    fontSize: 14,
+  },
+  noDataContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   noDataText: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
-    marginTop: 20,
   },
   buttonContainer: {
-    marginTop: 20,
-    paddingVertical: 10,
-  },
-  NumberOfEntries:{
-    fontWeight: 'bold',
+    padding: 16,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
   },
 });
 

@@ -129,6 +129,7 @@ export default function TabOneScreen() {
         <Text style={styles.title}>Your QR Code</Text>
         
         <View style={styles.qrContainer}>
+        
           {loading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="white" />
@@ -142,6 +143,7 @@ export default function TabOneScreen() {
           ) : approvedRequests.length > 0 ? (
             <>
               {renderQRCode()}
+        
               {approvedRequests.length > 1 && (
                 <View style={styles.navigationContainer}>
                   <TouchableOpacity 
@@ -179,7 +181,6 @@ export default function TabOneScreen() {
 }
 
 const styles = StyleSheet.create({
-  // ... existing styles ...
   
   qrWrapper: {
     alignItems: 'center',
