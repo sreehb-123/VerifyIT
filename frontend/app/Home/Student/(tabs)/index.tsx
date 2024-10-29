@@ -12,7 +12,7 @@ export default function TabOneScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const API_BASE_URL = 'https://1e5f-103-120-31-122.ngrok-free.app';
+  const API_BASE_URL = 'http://192.168.x.x:5000/api'; //replace this with your actual Laptop's IP Address
 
   const fetchQRCode = async () => {
     try {

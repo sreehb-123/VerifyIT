@@ -2,7 +2,7 @@ import axios from 'axios';
 import User from '../../backend/models/User';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'https://1e5f-103-120-31-122.ngrok-free.app/api';
+const API_URL = 'http://192.168.x.x:5000/api'; //replace this with your actual Laptop's IP Address
 
 export const studentSignup = async (email: string, password: string, rollNo: string) => {
     await axios.post(`${API_URL}/auth/create-student`, {email,password,rollNo});

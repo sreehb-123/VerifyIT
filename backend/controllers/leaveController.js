@@ -208,8 +208,8 @@ export const getApprovedRequests = async(req,res) => {
 }*/
 export const getApprovedRequests = async (req, res) => {
   try {
-    const { studentId } = req.query;  // Changed from req.body to req.query
-    
+    const { studentId } = req.query;
+
     if (!studentId) {
       return res.status(400).json({
         success: false,
@@ -217,18 +217,16 @@ export const getApprovedRequests = async (req, res) => {
       });
     }
 
-    // Rest of your controller code...
     const approvedRequests = await LeaveRequest.find({ 
       studentId, 
-      status: 'approved' 
+      status: 'approved',
+      records: { $in: ['inactive','active'] }
     });
     if (approvedRequests.length === 0) {
       return res.status(404).json({ message: 'No approved requests found for this student.' });
     }
     res.status(200).json(approvedRequests);
-    // ...
   } catch (error) {
-    // Error handling...
     console.error(error);
     res.status(500).json({ message: error.message });
   }
