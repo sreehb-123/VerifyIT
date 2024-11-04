@@ -98,7 +98,7 @@ const Login: React.FC = () => {
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
       {role === 'student' && (
-        <Link href="/Auth/Signup?role=student" asChild>
+        <Link href="/Auth/demo2" asChild>
           <TouchableOpacity>
             <Text style={styles.signupText}>Don't have an account? Sign Up</Text>
           </TouchableOpacity>
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     //flex: 1,
     maxWidth:400,
     justifyContent: 'center',
-    backgroundColor: '#f5f5f5', // You can set this to theme.background if needed
+    backgroundColor: '#f5f5f5',
   },
   input: {
     marginBottom: 15,
@@ -124,6 +124,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     color: '#000', // Adjust for text color
+    minWidth: 250,
+    maxWidth: 350
   },
   button: {
     backgroundColor: '#2196F3',

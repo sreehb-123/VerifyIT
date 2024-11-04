@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://192.168.x.x:5000/api'; //replace this with your actual Laptop's IP Address
+const API_BASE_URL = 'http://192.168.6.32:5000'; //replace this with your actual Laptop's IP Address
 
 
 

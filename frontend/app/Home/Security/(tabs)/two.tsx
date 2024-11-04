@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://192.168.x.x:5000/api'; //replace this with your actual Laptop's IP Address
+const API_BASE_URL = 'http://192.168.6.32:5000'; //replace this with your actual Laptop's IP Address
 
 
 
@@ -16,6 +16,7 @@ interface LeaveRequest {
   noOfStudents: number;
   status: string;
   reason: string;
+  records: string;
 }
 
 const TabTwo = () => {
@@ -86,8 +87,8 @@ const TabTwo = () => {
         <View style={styles.cardRow}>
           <Text style={styles.cardLabel}>Roll Number(s):</Text>
           <Text style={styles.cardValue}>{item.rollNo.join(', ')}</Text>
-          <View style={[styles.statusBadge, { backgroundColor: item.status === 'approved' ? '#4CAF50' : '#FFA000' }]}>
-          <Text style={styles.statusText}>Active</Text>
+          <View style={[styles.statusBadge, { backgroundColor: item.records === 'done' ? '#4CAF50' : '#FFA000' }]}>
+          <Text style={styles.statusText}>{item.records.charAt(0).toUpperCase() + item.records.slice(1)}</Text>
         </View>
         </View>
         
@@ -120,7 +121,7 @@ const TabTwo = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Today's Activity</Text>
+      <Text style={styles.title}>Student's Activity</Text>
       {/*
       {scannedData ? (
         <View style={styles.tableContainer}>

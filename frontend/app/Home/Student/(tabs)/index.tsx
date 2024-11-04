@@ -12,7 +12,7 @@ export default function TabOneScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const API_BASE_URL = 'http://192.168.x.x:5000/api'; //replace this with your actual Laptop's IP Address
+  const API_BASE_URL = 'http://192.168.6.32:5000'; //replace this with your actual Laptop's IP Address
 
   const fetchQRCode = async () => {
     try {
@@ -92,12 +92,13 @@ export default function TabOneScreen() {
     console.log(currentRequest);
     // Create QR code data object
     const qrData = JSON.stringify({
-      //requestId: currentRequest.,
+      requestId: currentRequest._id,
       noOfStudents: currentRequest.noOfStudents,
       rollNo: currentRequest.rollNo,
       leaveDate: currentRequest.leaveDate,
       entryDate: currentRequest.entryDate,
       studentId: currentRequest.studentId,
+      records: currentRequest.records
     });
 
     return (

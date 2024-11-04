@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, useColorScheme, ScrollView, Pressable} from 'react-native';
 import { SafeAreaView} from 'react-native-safe-area-context';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
+import { studentSignup } from '@/api';
 
 interface ThemeColors {
   background: string;
@@ -62,7 +63,8 @@ const Signup = () => {  // Changed to uppercase for component naming convention
   };
 
   const onSubmit = () => {
-    // Successful submission logic here
+    studentSignup(email,password,roll)
+    router.back();
     console.log('Form submitted successfully');
   };
 

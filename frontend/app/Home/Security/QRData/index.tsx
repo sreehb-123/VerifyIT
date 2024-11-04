@@ -1,13 +1,19 @@
 import React from 'react';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, StyleSheet, ScrollView, Button, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 interface ScannedData {
+  requestId: string;
   rollNo: string[];
   noOfStudents: number;
   entryDate: string;
   [key: string]: any;
+  records: string;
 }
+
+const API_BASE_URL = 'http://192.168.6.32:5000'; //replace this with your actual Laptop's IP Address
 
 const QRDataScreen = () => {
   const params = useLocalSearchParams<{ scannedData: string }>();
@@ -32,6 +38,37 @@ const QRDataScreen = () => {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const handleAccept = async (id: string, records: string) => {
+    console.log(id);
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+
+      console.log(token);
+      
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+
+      const response = await axios.patch(`${API_BASE_URL}/api/leaves/requests/exit`, {
+        id,
+        records: records === 'inactive' ? 'active' : records === 'active' ? 'done' : 'done',
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log(response.data);
+      Alert.alert('Success', 'Request activated successfully');
+    } catch (error) {
+      const errorMessage = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : 'Failed to accept request';
+      Alert.alert('Error', errorMessage);
+    }
   };
 
   const DataCard = ({ data }: { data: ScannedData }) => {
@@ -102,7 +139,10 @@ const QRDataScreen = () => {
         ]
       );
     } else {
-      router.back();
+      const requestId = scannedData[0].requestId;
+      const records = scannedData[0].records;
+      handleAccept(requestId,records);
+      router.replace('/Home/Security/(tabs)');
     }
   };
 

@@ -7,7 +7,8 @@ import {
     getActiveLeaveRequests,
    // getMyActiveLeaveRequests,
     getPendingRequests,
-    getApprovedRequests
+    getApprovedRequests,
+    updateLeaveRequestRecord
 } from '../controllers/leaveController.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 
@@ -22,5 +23,5 @@ router.get('/requests/active',authenticateToken,getActiveLeaveRequests);
 
 router.get('/requests/pending',authenticateToken,getPendingRequests);
 router.get('/requests/approved',authenticateToken,getApprovedRequests);
-
+router.patch('/requests/exit',authenticateToken,updateLeaveRequestRecord);
 export default router;

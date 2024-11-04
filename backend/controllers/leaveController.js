@@ -26,7 +26,7 @@ export const createLeaveRequest = async (req, res) => {
 
     const savedRequest = await newRequest.save();
     
-    /*
+    
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -39,7 +39,7 @@ export const createLeaveRequest = async (req, res) => {
       from: process.env.SECURITY_EMAIL,
       to: 'harshab1926@gmail.com',
       subject: 'New Leave Request Submitted',
-      text:  `A new leave request is submitted by student - ${studentId}. Details:
+      text:  `A new leave request is submitted. Details:
         - Roll No: ${rollNo ? rollNo.join(', ') : 'Not provided'}
         - Leave Date: ${leaveDate}
         - Entry Date: ${entryDate}
@@ -51,7 +51,6 @@ export const createLeaveRequest = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-*/
     res.status(201).json(savedRequest);
   } catch (error) {
     console.error(error)
@@ -164,7 +163,9 @@ export const getActiveLeaveRequests = async (req,res) => {
     return res.status(403).json({message: 'Access denied. Not for students'})
   }
   try {
-    const activeRequests = await LeaveRequest.find({ records: 'active' });
+    const activeRequests = await LeaveRequest.find({
+      records: { $in: ['done','active'] }
+    });
     if(activeRequests.length === 0){
       return res.status(404).json({message: 'No active leave requests'});
     }
@@ -232,3 +233,26 @@ export const getApprovedRequests = async (req, res) => {
   }
 };
 
+export const updateLeaveRequestRecord = async (req, res) => {
+  const requestId = req.body.id;
+  const records = req.body.records;
+  if(req.user.role !== 'security'){
+    return res.status(403).json({message: 'Access denied. Only for security'});
+  }
+  try {
+    const updatedRequest = await LeaveRequest.findByIdAndUpdate(
+      requestId,
+      { records },
+      { new: true }
+    );
+    if(!updatedRequest){
+      //console.log('kuch nahi hai');
+      return res.status(404).json({messge: 'Leave request not found'});
+    }
+    res.status(200).json(updatedRequest);
+  } catch (error) {
+    console.error('Error updating leave request:', error); // Log the full error
+
+    res.status(500).json({ message: error.message });
+  }
+};

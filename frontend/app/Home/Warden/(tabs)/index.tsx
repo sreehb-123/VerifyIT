@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 // Define your API base URL - replace with your actual API URL
-const API_BASE_URL = 'http://192.168.x.x:5000/api'; //replace this with your actual Laptop's IP Address
+const API_BASE_URL = 'http://192.168.6.32:5000'; //replace this with your actual Laptop's IP Address
 
 interface PendingRequest {
   _id: string;
